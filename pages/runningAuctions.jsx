@@ -1,5 +1,5 @@
 import React from "react";
-import { Card } from 'antd';
+import { Card } from "antd";
 import { subscribe, unsubscribe } from "../client/ws";
 import { getAuctions, postAuctionBid } from "../client/api";
 import AuctionList from "../client/components/AuctionList";
@@ -7,7 +7,7 @@ import { SessionConsumer } from "../client/components/SessionProvider";
 
 class RunningAuctions extends React.Component {
   static async getInitialProps() {
-    const { auctions } = await getAuctions({ status: 'active' });
+    const { auctions } = await getAuctions({ status: "active" });
 
     return { auctions };
   }
@@ -16,7 +16,7 @@ class RunningAuctions extends React.Component {
     super(props);
 
     this.state = {
-      auctions: props.auctions
+      auctions: props.auctions || []
     };
   }
 
