@@ -97,10 +97,10 @@ class SessionProvider extends React.Component {
         {this.props.children}
 
         <Modal
+          title="Sign in"
           visible={this.state.modalOpen}
           onCancel={this.closeModal}
-          cancelButtonDisabled
-          okButtonDisabled
+          footer={null}
           closable
         >
           <LoginForm onSubmit={this.handleSubmit} />

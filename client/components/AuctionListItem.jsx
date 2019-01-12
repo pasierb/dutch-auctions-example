@@ -2,6 +2,7 @@ import React from "react";
 import List from "antd/lib/list";
 import Button from "antd/lib/button";
 import { SessionConsumer } from "./SessionProvider";
+import Countdown from "./Countdown";
 
 const AuctionListItem = props => {
   const { auction, onBid } = props;
@@ -42,7 +43,16 @@ const AuctionListItem = props => {
           }
         }
 
-        return <List.Item actions={buttons}>{auction.name}</List.Item>;
+        return (
+          <List.Item actions={buttons}>
+            <List.Item.Meta title={auction.name} />
+            <div>
+              {auction.status === "active" && (
+                <Countdown date={new Date(auction.willExpireAt)} />
+              )}
+            </div>
+          </List.Item>
+        );
       }}
     </SessionConsumer>
   );

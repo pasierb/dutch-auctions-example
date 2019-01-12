@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal } from "antd";
+import { Modal, Card, Button, Row, Col } from "antd";
 import { subscribe, unsubscribe } from "../client/ws";
 import { SessionConsumer } from "../client/components/SessionProvider";
 import PrivatePage from "../client/components/PrivatePage";
@@ -11,7 +11,6 @@ import {
   getAuctions,
   postAuctionStart
 } from "../client/api";
-import { Button } from "antd/lib/radio";
 
 class MyAuctions extends React.Component {
   state = {
@@ -112,23 +111,37 @@ class MyAuctions extends React.Component {
             }
 
             return (
-              <div>
-                <Button onClick={() => this.handleEditAuction()}>Add</Button>
-                <AuctionsTable
-                  auctions={auctions}
-                  loading={loading}
-                  onStart={handleStartAuction}
-                  onEdit={this.handleEditAuction}
-                />
+              <React.Fragment>
+                <div style={{ textAlign: "right", padding: '1em 0' }}>
+                  <Button
+                    onClick={() => this.handleEditAuction()}
+                    type="primary"
+                  >
+                    Add
+                  </Button>
+                </div>
 
-                <Modal visible={modalOpen} onCancel={this.handleCancelAuction}>
+                <Card>
+                  <AuctionsTable
+                    auctions={auctions}
+                    loading={loading}
+                    onStart={handleStartAuction}
+                    onEdit={this.handleEditAuction}
+                  />
+                </Card>
+
+                <Modal
+                  visible={modalOpen}
+                  onCancel={this.handleCancelAuction}
+                  footer={null}
+                >
                   <AuctionForm
                     key={selectedAuction}
                     auction={selectedAuction}
                     onSubmit={handleSubmitAuction}
                   />
                 </Modal>
-              </div>
+              </React.Fragment>
             );
           }}
         </SessionConsumer>

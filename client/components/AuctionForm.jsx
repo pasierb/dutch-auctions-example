@@ -30,7 +30,7 @@ const AuctionForm = Form.create()(props => {
         })(<Input type="number" />)}
       </Form.Item>
       <Form.Item>
-        <Button htmlType="submit">Save</Button>
+        <Button htmlType="submit" type="primary">Save</Button>
       </Form.Item>
     </Form>
   );

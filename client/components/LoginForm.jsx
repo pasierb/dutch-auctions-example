@@ -22,7 +22,7 @@ const LoginForm = Form.create()(props => {
         )}
       </Form.Item>
       <Form.Item>
-        <Button htmlType="submit">Sign in</Button>
+        <Button htmlType="submit" type="primary">Sign in</Button>
       </Form.Item>
     </Form>
   )

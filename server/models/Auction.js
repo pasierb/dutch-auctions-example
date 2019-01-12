@@ -47,7 +47,7 @@ class Auction extends Base {
 
   tick(fraction) {
     const priceDrop = this.startPrice * fraction;
-    const newPrice = Math.ceil(this.currentPrice - priceDrop);
+    const newPrice = Math.round(this.currentPrice - priceDrop);
 
     if (newPrice <= 0) {
       this.finish();

@@ -1,8 +1,8 @@
 const { withAuthorization } = require("./sessions");
 const { Auction } = require("../models");
 
-const AUCTION_INTERVAL = 5000;
-const AUCTION_PRICE_DROP = 0.2;
+const INTERVAL = 10000;
+const ITERATIONS = 5;
 
 const STATUS_ACTION = {
   active: "AUCTION:TICK",
@@ -27,7 +27,7 @@ const createAuctionHandler = withAuthorization((req, res) => {
   const auction = Auction.create({ userId: user.id, ...req.body.auction });
 
   return res.json({ auction });
-})
+});
 
 const udpateAuctionHandler = withAuthorization((req, res) => {
   const { auctionId } = req.params;
@@ -35,7 +35,7 @@ const udpateAuctionHandler = withAuthorization((req, res) => {
 
   auction.update(req.body.auction);
   return res.json({ auction });
-})
+});
 
 const bidAuctionHandler = withAuthorization((req, res) => {
   const user = req.user;
@@ -55,7 +55,10 @@ const bidAuctionHandler = withAuthorization((req, res) => {
   }
 
   auction.sell(user);
-  broadcast(req, JSON.stringify({ action: STATUS_ACTION[auction.status], payload: auction }));
+  broadcast(
+    req,
+    JSON.stringify({ action: STATUS_ACTION[auction.status], payload: auction })
+  );
 
   return res.json({ auction });
 });
@@ -73,6 +76,8 @@ function startAuctionHandler(req, res) {
   }
 
   auction.start();
+  auction.update({ willExpireAt: Date.now() + ITERATIONS * INTERVAL });
+
   broadcast(
     req,
     JSON.stringify({ action: "AUCTION:STARTED", payload: auction })
@@ -84,7 +89,7 @@ function startAuctionHandler(req, res) {
       return clearInterval(handle);
     }
 
-    auction.tick(AUCTION_PRICE_DROP);
+    auction.tick(1 / ITERATIONS);
 
     broadcast(
       req,
@@ -93,7 +98,7 @@ function startAuctionHandler(req, res) {
         payload: auction
       })
     );
-  }, AUCTION_INTERVAL);
+  }, INTERVAL);
 
   return res.json({ auction });
 }
