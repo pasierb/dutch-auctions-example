@@ -1,4 +1,3 @@
-const { withAuthorization } = require("./sessions");
 const { Auction } = require("../models");
 
 const INTERVAL = 10000;
@@ -22,22 +21,30 @@ function listAuctionsHandler(req, res) {
   });
 }
 
-const createAuctionHandler = withAuthorization((req, res) => {
+function createAuctionHandler(req, res) {
   const user = req.user;
-  const auction = Auction.create({ userId: user.id, ...req.body.auction });
+  const auction = Auction.create({ ...req.body.auction, userId: user.id });
 
   return res.json({ auction });
-});
+}
 
-const udpateAuctionHandler = withAuthorization((req, res) => {
+function udpateAuctionHandler(req, res) {
   const { auctionId } = req.params;
   const auction = Auction.findById(auctionId);
 
+  if (!auction) {
+    return res.status(404).json({ error: "Auction not found" });
+  }
+
+  if (auction.status === Auction.ACTIVE) {
+    return res.status(400).json({ error: "Can not edit active auction" });
+  }
+
   auction.update(req.body.auction);
   return res.json({ auction });
-});
+}
 
-const bidAuctionHandler = withAuthorization((req, res) => {
+function bidAuctionHandler(req, res) {
   const user = req.user;
   const { auctionId } = req.params;
   const auction = Auction.findById(auctionId);
@@ -50,7 +57,7 @@ const bidAuctionHandler = withAuthorization((req, res) => {
     return res.status(400).json({ error: "Auction no longer active" });
   }
 
-  if (auction.userId === user.id) {
+  if (auction.user.id === user.id) {
     return res.status(400).json({ error: "Can not bid for own auction" });
   }
 
@@ -61,14 +68,19 @@ const bidAuctionHandler = withAuthorization((req, res) => {
   );
 
   return res.json({ auction });
-});
+}
 
 function startAuctionHandler(req, res) {
   const { auctionId } = req.params;
+  const user = req.user;
   const auction = Auction.findById(auctionId);
 
   if (!auction) {
     return res.status(404).json({ error: "Auction not found" });
+  }
+
+  if (user.id !== auction.user.id) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   if (auction.status === Auction.ACTIVE) {

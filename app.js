@@ -1,5 +1,5 @@
-require('dotenv').config();
-require('./seed');
+require("dotenv").config();
+require("./seed");
 const express = require("express");
 const WebSocketServer = require("ws").Server;
 const next = require("next");
@@ -12,7 +12,11 @@ const {
   startAuctionHandler,
   bidAuctionHandler
 } = require("./server/api/auctions");
-const { signInHandler, verifyHandler } = require("./server/api/sessions");
+const {
+  signInHandler,
+  verifyHandler,
+  withAuthorization
+} = require("./server/api/sessions");
 
 const dev = process.env.NODE_ENV !== "production";
 const port = 3000;
@@ -36,12 +40,21 @@ app
     });
 
     server.get("/api/auctions", listAuctionsHandler);
-    server.post("/api/auctions", createAuctionHandler);
-    server.patch("/api/auctions/:auctionId", udpateAuctionHandler);
-    server.post("/api/auctions/:auctionId/start", startAuctionHandler);
-    server.post("/api/auctions/:auctionId/bid", bidAuctionHandler);
+    server.post("/api/auctions", withAuthorization(createAuctionHandler));
+    server.patch(
+      "/api/auctions/:auctionId",
+      withAuthorization(udpateAuctionHandler)
+    );
+    server.post(
+      "/api/auctions/:auctionId/start",
+      withAuthorization(startAuctionHandler)
+    );
+    server.post(
+      "/api/auctions/:auctionId/bid",
+      withAuthorization(bidAuctionHandler)
+    );
     server.post("/api/sessions", signInHandler);
-    server.post("/api/sessions/verify", verifyHandler);
+    server.post("/api/sessions/verify", withAuthorization(verifyHandler));
 
     server.get("*", (req, res) => {
       return handle(req, res);
