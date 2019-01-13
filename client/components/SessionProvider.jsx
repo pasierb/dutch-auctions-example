@@ -26,8 +26,6 @@ class SessionProvider extends React.Component {
         try {
           const session = JSON.parse(rawSession);
 
-          console.log(session.token);
-
           verifySession(session.token).then(res => {
             if (res.ok) {
               this.setState(session);

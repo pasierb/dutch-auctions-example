@@ -24,8 +24,8 @@ class Countdown extends React.Component {
 
   render() {
     const { distance } = this.state;
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    const minutes = Math.max(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)), 0);
+    const seconds = Math.max(Math.floor((distance % (1000 * 60)) / 1000), 0);
 
     return (
       <span>

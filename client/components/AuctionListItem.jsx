@@ -9,7 +9,7 @@ const AuctionListItem = props => {
 
   return (
     <SessionConsumer>
-      {({ state, actions }) => {
+      {({ state }) => {
         const buttons = [];
 
         const handleClick = () => onBid(auction);
