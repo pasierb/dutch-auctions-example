@@ -1,5 +1,9 @@
 import sinon from "sinon";
-import { createAuctionHandler, udpateAuctionHandler } from "./auctions";
+import {
+  createAuctionHandler,
+  udpateAuctionHandler,
+  bidAuctionHandler
+} from "./auctions";
 import { User, Auction } from "../models";
 
 describe("auctions", () => {
@@ -9,11 +13,19 @@ describe("auctions", () => {
   let auction;
 
   beforeEach(() => {
-    auction = Auction.create({ name: "Sample", startPrice: 100 });
+    const auctionUser = User.create({ username: "Jim" });
+    auction = Auction.create({
+      name: "Sample",
+      startPrice: 100,
+      userId: auctionUser.id
+    });
 
     request = {
       params: {},
-      body: {}
+      body: {},
+      wss: {
+        clients: []
+      }
     };
 
     response = {
@@ -64,6 +76,64 @@ describe("auctions", () => {
         .returns(response);
 
       udpateAuctionHandler(request, response);
+      resMock.verify();
+    });
+  });
+
+  describe("bidAuctionHandler", () => {
+    it("returns 400 if bidding own auction", () => {
+      auction.start();
+
+      request.params.auctionId = auction.id;
+      request.user = user;
+
+      // const resMock = sinon.mock(response);
+
+      // resMock
+      //   .expects("status")
+      //   .once()
+      //   .withArgs(200)
+      //   .returns(response);
+
+      bidAuctionHandler(request, response);
+      // resMock.verify();
+      expect(auction.status).toEqual("sold");
+      expect(auction.buyer.id).toEqual(user.id);
+    });
+
+    it("returns 400 if auction inactive", () => {
+      auction.update({ status: "expired", userId: user.id });
+
+      request.params.auctionId = auction.id;
+      request.user = auction.user;
+
+      const resMock = sinon.mock(response);
+
+      resMock
+        .expects("status")
+        .once()
+        .withArgs(400)
+        .returns(response);
+
+      bidAuctionHandler(request, response);
+      resMock.verify();
+    });
+
+    it("marks auction sold", () => {
+      auction.update({ status: "active" });
+
+      request.params.auctionId = auction.id;
+      request.user = auction.user;
+
+      const resMock = sinon.mock(response);
+
+      resMock
+        .expects("status")
+        .once()
+        .withArgs(400)
+        .returns(response);
+
+      bidAuctionHandler(request, response);
       resMock.verify();
     });
   });
