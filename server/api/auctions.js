@@ -30,10 +30,15 @@ function createAuctionHandler(req, res) {
 
 function udpateAuctionHandler(req, res) {
   const { auctionId } = req.params;
+  const user = req.user;
   const auction = Auction.findById(auctionId);
 
   if (!auction) {
     return res.status(404).json({ error: "Auction not found" });
+  }
+
+  if (!user || user.id !== auction.user.id) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   if (auction.status === Auction.ACTIVE) {
